@@ -8,26 +8,82 @@
         * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f1a;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
             margin: 0;
             padding: 20px;
             color: #e0e0e0;
+            min-height: 100vh;
         }
         .container { max-width: 800px; margin: 0 auto; }
         
         h1 { 
             text-align: center; 
-            color: #7c3aed; 
-            font-size: 2em;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.2em;
         }
         .sub { text-align: center; color: #888; margin-top: -10px; margin-bottom: 30px; }
         
+        /* вкладки */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: #1e1e2a;
+            border: 1px solid #2a2a3a;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #aaa;
+        }
+        .tab-btn.active {
+            background: #7c3aed;
+            color: white;
+            border-color: #7c3aed;
+        }
+        .tab-btn:hover {
+            transform: translateY(-2px);
+            background: #2a2a3a;
+        }
+        
+        /* контент вкладок */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* карточки ботов */
         .bot-card {
             background: #1e1e2a;
             border-radius: 20px;
             padding: 18px;
             margin-bottom: 15px;
             border: 1px solid #2a2a3a;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .bot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.2);
+            border-color: #7c3aed;
+        }
+        .bot-card:active {
+            transform: translateY(0px);
         }
         .bot-card h3 { margin: 0 0 8px 0; color: #a78bfa; }
         .bot-card p { margin: 5px 0; color: #aaa; font-size: 14px; }
@@ -40,28 +96,50 @@
             padding: 8px 16px;
             border-radius: 25px;
             font-size: 14px;
+            transition: 0.2s;
         }
-        .bot-link:hover { background: #6d28d9; }
+        .bot-link:hover {
+            background: #6d28d9;
+            transform: translateY(-2px);
+        }
         
-        .admin-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+        /* поддержка */
+        .support-card {
+            background: #1e1e2a;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #2a2a3a;
+        }
+        .donate-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .donate-btn {
             background: #2a2a3a;
-            border: none;
-            color: white;
-            padding: 12px 18px;
+            padding: 12px 24px;
             border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 100;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .donate-btn:hover {
+            transform: translateY(-3px);
+            background: #7c3aed;
         }
         
+        /* админка */
         .admin-panel {
             background: #1a1a2a;
             border-radius: 20px;
             padding: 20px;
-            margin-top: 30px;
+            margin-top: 20px;
             border: 1px solid #7c3aed;
         }
         .hidden { display: none; }
@@ -83,6 +161,11 @@
             border-radius: 12px;
             cursor: pointer;
             margin: 5px 5px 0 0;
+            transition: 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            background: #6d28d9;
         }
         button.danger { background: #dc2626; }
         button.danger:hover { background: #b91c1c; }
@@ -94,7 +177,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
+        
+        /* футер */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #2a2a3a;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
         hr { border-color: #2a2a3a; }
     </style>
 </head>
@@ -103,8 +206,32 @@
     <h1>Тихий</h1>
     <div class="sub">Мои Тг боты</div>
     
-    <div id="botsList"></div>
+    <!-- вкладки -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="bots">Боты</button>
+        <button class="tab-btn" data-tab="support">Поддержать авторов</button>
+    </div>
     
+    <!-- вкладка Боты -->
+    <div id="tab-bots" class="tab-content active">
+        <div id="botsList"></div>
+    </div>
+    
+    <!-- вкладка Поддержать авторов -->
+    <div id="tab-support" class="tab-content">
+        <div class="support-card">
+            <h3>Поддержать проект</h3>
+            <p>Если вам нравятся мои боты, вы можете поддержать автора</p>
+            <div class="donate-buttons">
+                <a href="#" class="donate-btn"> DonationAlerts</a>
+                <a href="#" class="donate-btn"> Boosty</a>
+                <a href="#" class="donate-btn"> Patreon</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 14px; color: #888">Спасибо за поддержку!</p>
+        </div>
+    </div>
+    
+    <!-- админка -->
     <div id="adminPanel" class="admin-panel hidden">
         <h2>Админка</h2>
         <div id="authSection">
@@ -122,14 +249,29 @@
             <div id="botsAdminList"></div>
         </div>
     </div>
+    
+    <!-- футер с нашим тг -->
+    <div class="footer">
+        <p>Наш Telegram: <a href="https://t.me/TIhhhii" target="_blank">@TIhhhii</a></p>
+        <button class="admin-btn" onclick="toggleAdmin()" style="background: none; border: 1px solid #7c3aed; margin-top: 10px;">Админка</button>
+    </div>
 </div>
-
-<button class="admin-btn" onclick="toggleAdmin()">Админка</button>
 
 <script>
     const ADMIN_PASSWORD = "TIhhhiiserverbot121";
     
     let bots = [];
+    
+    // вкладки
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+    });
     
     function loadBots() {
         const saved = localStorage.getItem("tihiy_bots");
@@ -145,7 +287,8 @@
     function saveBots() {
         localStorage.setItem("tihiy_bots", JSON.stringify(bots));
         renderBots();
-        if (document.getElementById("adminControls") && document.getElementById("adminControls").classList.contains("hidden") === false) {
+        const adminControls = document.getElementById("adminControls");
+        if (adminControls && !adminControls.classList.contains("hidden")) {
             renderAdminList();
         }
     }
@@ -178,8 +321,8 @@
                     @${escapeHtml(bot.username)}
                 </div>
                 <div>
-                    <button onclick="editBot(${index})" style="background:#f59e0b">ред</button>
-                    <button onclick="deleteBot(${index})" class="danger">удл</button>
+                    <button onclick="editBot(${index})" style="background:#f59e0b">Редактировать</button>
+                    <button onclick="deleteBot(${index})" class="danger">Удалить</button>
                 </div>
             </div>
         `).join("");
@@ -257,4 +400,4 @@
     loadBots();
 </script>
 </body>
-</html>
+    </html>
