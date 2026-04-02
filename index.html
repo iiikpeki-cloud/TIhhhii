@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тихий | TG Боты</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            margin: 0;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        h1 { 
+            text-align: center; 
+            color: #7c3aed; 
+            font-size: 2em;
+        }
+        .sub { text-align: center; color: #888; margin-top: -10px; margin-bottom: 30px; }
+        
+        .bot-card {
+            background: #1e1e2a;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 1px solid #2a2a3a;
+        }
+        .bot-card h3 { margin: 0 0 8px 0; color: #a78bfa; }
+        .bot-card p { margin: 5px 0; color: #aaa; font-size: 14px; }
+        .bot-link {
+            display: inline-block;
+            margin-top: 10px;
+            background: #7c3aed;
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+        .bot-link:hover { background: #6d28d9; }
+        
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2a2a3a;
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+        }
+        
+        .admin-panel {
+            background: #1a1a2a;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #7c3aed;
+        }
+        .hidden { display: none; }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid #3a3a4a;
+            background: #0f0f1a;
+            color: #e0e0e0;
+        }
+        button {
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 5px 5px 0 0;
+        }
+        button.danger { background: #dc2626; }
+        button.danger:hover { background: #b91c1c; }
+        .bot-item {
+            background: #0f0f1a;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        hr { border-color: #2a2a3a; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🤖 Тихий</h1>
+    <div class="sub">Мои Telegram боты</div>
+    
+    <div id="botsList"></div>
+    
+    <div id="adminPanel" class="admin-panel hidden">
+        <h2>🔐 Админка</h2>
+        <div id="authSection">
+            <input type="password" id="adminPassword" placeholder="Введите пароль">
+            <button onclick="checkPassword()">Войти</button>
+        </div>
+        <div id="adminControls" class="hidden">
+            <h3>➕ Добавить бота</h3>
+            <input type="text" id="botName" placeholder="Название бота">
+            <input type="text" id="botUsername" placeholder="Username (без @)">
+            <textarea id="botDesc" placeholder="Описание"></textarea>
+            <button onclick="addBot()">Добавить</button>
+            
+            <h3>📋 Список ботов</h3>
+            <div id="botsAdminList"></div>
+        </div>
+    </div>
+</div>
+
+<button class="admin-btn" onclick="toggleAdmin()">🔧 Админка</button>
+
+<script>
+    // ПАРОЛЬ АДМИНКИ
+    const ADMIN_PASSWORD = "TIhhhiiserverbot121";
+    
+    let bots = [];
+    
+    // Загрузка из localStorage
+    function loadBots() {
+        const saved = localStorage.getItem("tihiy_bots");
+        if (saved) {
+            bots = JSON.parse(saved);
+        } else {
+            // Боты по умолчанию
+            bots = [
+                { name: "Пример бота", username: "example_bot", desc: "Пример описания бота" },
+                { name: "Второй бот", username: "second_bot", desc: "Ещё один классный бот" }
+            ];
+            saveBots();
+        }
+        renderBots();
+    }
+    
+    function saveBots() {
+        localStorage.setItem("tihiy_bots", JSON.stringify(bots));
+        renderBots();
+        if (document.getElementById("adminControls").classList.contains("hidden") === false) {
+            renderAdminList();
+        }
+    }
+    
+    function renderBots() {
+        const container = document.getElementById("botsList");
+        if (bots.length === 0) {
+            container.innerHTML = "<p style='text-align:center'>🤔 Пока нет ботов...</p>";
+            return;
+        }
+        container.innerHTML = bots.map(bot => `
+            <div class="bot-card">
+                <h3>🤖 ${escapeHtml(bot.name)}</h3>
+                <p>${escapeHtml(bot.desc)}</p>
+                <a href="https://t.me/${escapeHtml(bot.username)}" target="_blank" class="bot-link">@${escapeHtml(bot.username)}</a>
+            </div>
+        `).join("");
+    }
+    
+    function renderAdminList() {
+        const container = document.getElementById("botsAdminList");
+        if (bots.length === 0) {
+            container.innerHTML = "<p>Нет ботов</p>";
+            return;
+        }
+        container.innerHTML = bots.map((bot, index) => `
+            <div class="bot-item">
+                <div>
+                    <strong>${escapeHtml(bot.name)}</strong><br>
+                    @${escapeHtml(bot.username)}
+                </div>
+                <div>
+                    <button onclick="editBot(${index})" style="background:#f59e0b">✏️</button>
+                    <button onclick="deleteBot(${index})" class="danger">🗑️</button>
+                </div>
+            </div>
+        `).join("");
+    }
+    
+    function addBot() {
+        const name = document.getElementById("botName").value.trim();
+        const username = document.getElementById("botUsername").value.trim();
+        const desc = document.getElementById("botDesc").value.trim();
+        
+        if (!name || !username) {
+            alert("Заполните название и username!");
+            return;
+        }
+        
+        bots.push({ name, username, desc });
+        saveBots();
+        
+        document.getElementById("botName").value = "";
+        document.getElementById("botUsername").value = "";
+        document.getElementById("botDesc").value = "";
+    }
+    
+    function deleteBot(index) {
+        if (confirm("Удалить бота?")) {
+            bots.splice(index, 1);
+            saveBots();
+        }
+    }
+    
+    function editBot(index) {
+        const bot = bots[index];
+        const newName = prompt("Новое название:", bot.name);
+        if (newName !== null) bot.name = newName;
+        const newUsername = prompt("Новый username (без @):", bot.username);
+        if (newUsername !== null) bot.username = newUsername;
+        const newDesc = prompt("Новое описание:", bot.desc);
+        if (newDesc !== null) bot.desc = newDesc;
+        saveBots();
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === "&") return "&amp;";
+            if (m === "<") return "&lt;";
+            if (m === ">") return "&gt;";
+            return m;
+        });
+    }
+    
+    function checkPassword() {
+        const pwd = document.getElementById("adminPassword").value;
+        if (pwd === ADMIN_PASSWORD) {
+            document.getElementById("authSection").classList.add("hidden");
+            document.getElementById("adminControls").classList.remove("hidden");
+            renderAdminList();
+        } else {
+            alert("Неверный пароль!");
+        }
+    }
+    
+    function toggleAdmin() {
+        const panel = document.getElementById("adminPanel");
+        if (panel.classList.contains("hidden")) {
+            panel.classList.remove("hidden");
+            document.getElementById("authSection").classList.remove("hidden");
+            document.getElementById("adminControls").classList.add("hidden");
+            document.getElementById("adminPassword").value = "";
+        } else {
+            panel.classList.add("hidden");
+        }
+    }
+    
+    loadBots();
+</script>
+</body>
+      </html>
