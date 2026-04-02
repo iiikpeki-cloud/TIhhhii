@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тихий | TG Боты</title>
+    <title>Тихий | Тг Боты</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -100,49 +100,43 @@
 </head>
 <body>
 <div class="container">
-    <h1>🤖 Тихий</h1>
-    <div class="sub">Мои Telegram боты</div>
+    <h1>Тихий</h1>
+    <div class="sub">Мои Тг боты</div>
     
     <div id="botsList"></div>
     
     <div id="adminPanel" class="admin-panel hidden">
-        <h2>🔐 Админка</h2>
+        <h2>Админка</h2>
         <div id="authSection">
             <input type="password" id="adminPassword" placeholder="Введите пароль">
             <button onclick="checkPassword()">Войти</button>
         </div>
         <div id="adminControls" class="hidden">
-            <h3>➕ Добавить бота</h3>
+            <h3>Добавить бота</h3>
             <input type="text" id="botName" placeholder="Название бота">
             <input type="text" id="botUsername" placeholder="Username (без @)">
             <textarea id="botDesc" placeholder="Описание"></textarea>
             <button onclick="addBot()">Добавить</button>
             
-            <h3>📋 Список ботов</h3>
+            <h3>Список ботов</h3>
             <div id="botsAdminList"></div>
         </div>
     </div>
 </div>
 
-<button class="admin-btn" onclick="toggleAdmin()">🔧 Админка</button>
+<button class="admin-btn" onclick="toggleAdmin()">Админка</button>
 
 <script>
-    // ПАРОЛЬ АДМИНКИ
     const ADMIN_PASSWORD = "TIhhhiiserverbot121";
     
     let bots = [];
     
-    // Загрузка из localStorage
     function loadBots() {
         const saved = localStorage.getItem("tihiy_bots");
         if (saved) {
             bots = JSON.parse(saved);
         } else {
-            // Боты по умолчанию
-            bots = [
-                { name: "Пример бота", username: "example_bot", desc: "Пример описания бота" },
-                { name: "Второй бот", username: "second_bot", desc: "Ещё один классный бот" }
-            ];
+            bots = [];
             saveBots();
         }
         renderBots();
@@ -151,7 +145,7 @@
     function saveBots() {
         localStorage.setItem("tihiy_bots", JSON.stringify(bots));
         renderBots();
-        if (document.getElementById("adminControls").classList.contains("hidden") === false) {
+        if (document.getElementById("adminControls") && document.getElementById("adminControls").classList.contains("hidden") === false) {
             renderAdminList();
         }
     }
@@ -159,12 +153,12 @@
     function renderBots() {
         const container = document.getElementById("botsList");
         if (bots.length === 0) {
-            container.innerHTML = "<p style='text-align:center'>🤔 Пока нет ботов...</p>";
+            container.innerHTML = "<p style='text-align:center'>Пока нет ботов...</p>";
             return;
         }
         container.innerHTML = bots.map(bot => `
             <div class="bot-card">
-                <h3>🤖 ${escapeHtml(bot.name)}</h3>
+                <h3>${escapeHtml(bot.name)}</h3>
                 <p>${escapeHtml(bot.desc)}</p>
                 <a href="https://t.me/${escapeHtml(bot.username)}" target="_blank" class="bot-link">@${escapeHtml(bot.username)}</a>
             </div>
@@ -184,8 +178,8 @@
                     @${escapeHtml(bot.username)}
                 </div>
                 <div>
-                    <button onclick="editBot(${index})" style="background:#f59e0b">✏️</button>
-                    <button onclick="deleteBot(${index})" class="danger">🗑️</button>
+                    <button onclick="editBot(${index})" style="background:#f59e0b">ред</button>
+                    <button onclick="deleteBot(${index})" class="danger">удл</button>
                 </div>
             </div>
         `).join("");
@@ -263,4 +257,4 @@
     loadBots();
 </script>
 </body>
-      </html>
+</html>
